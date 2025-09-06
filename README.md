@@ -1,4 +1,4 @@
-ee Management System
+Fee Management System
 
 1. Introduction
 
