@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+<style>
+body { font-family: Arial; margin:0; background:#f0f2f5; }
+header { background:#2196F3; color:white; padding:15px 20px; text-align:center; position:relative; }
+.logout { position:absolute; right:20px; top:15px; background:#f44336; color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer; }
+.logout:hover { background:#d32f2f; }
+.container { padding:20px; }
+.card { background:white; margin:20px 0; border-radius:8px; box-shadow:0 4px 8px rgba(0,0,0,0.1); overflow:hidden; cursor:pointer; }
+.card h3 { margin:0; padding:15px 20px; background:#f2f2f2; }
+.card .content { padding:15px 20px; display:none; }
+input, button { padding:8px; margin:5px 0; border-radius:4px; border:1px solid #ccc; width:100%; }
+button { background:#4CAF50; color:white; border:none; cursor:pointer; }
+button:hover { background:#45a049; }
+table { width:100%; border-collapse:collapse; margin-top:10px; }
+table, th, td { border:1px solid #ccc; }
+th, td { padding:8px; text-align:left; }
+</style>
+</head>
+<body>
+
+<header>
+    Admin Dashboard
+    <button class="logout" onclick="logout()">Logout</button>
+</header>
+
+<div class="container">
+
+<!-- Fee Management Card -->
+<div class="card" onclick="toggleCard(this)">
+<h3>Fee Management</h3>
+<div class="content" onclick="event.stopPropagation()">
+<form id="feeForm" onsubmit="addFee(event)">
+<label>Student Name:</label>
+<input type="text" id="feeStudent" required>
+<label>Total Fee (₹):</label>
+<input type="number" id="totalFee" required>
+<label>Paid Fee (₹):</label>
+<input type="number" id="paidFee" required>
+<button type="submit">Save Fee</button>
+</form>
+
+<h4>Fee Records:</h4>
+<table>
+<thead><tr><th>Student</th><th>Total</th><th>Paid</th><th>Pending</th></tr></thead>
+<tbody id="feeList"></tbody>
+</table>
+</div>
+</div>
+
+<!-- Reports Card -->
+<div class="card" onclick="toggleCard(this)">
+<h3>Reports</h3>
+<div class="content" onclick="event.stopPropagation()">
+<p>Total Students: <span id="totalStudents">0</span></p>
+<p>Total Fees Collected: ₹<span id="totalCollected">0</span></p>
+<p>Total Pending Fees: ₹<span id="totalPending">0</span></p>
+</div>
+</div>
+
+</div>
+
+<script>
+let feeRecords = JSON.parse(localStorage.getItem('feeRecords')||'[]');
+
+function toggleCard(card){
+const content = card.querySelector('.content');
+content.style.display = content.style.display==="block"?"none":"block";
+}
+
+function addFee(e){
+e.preventDefault();
+const student=document.getElementById('feeStudent').value.trim();
+const total=parseFloat(document.getElementById('totalFee').value);
+const paid=parseFloat(document.getElementById('paidFee').value);
+if(paid>total){ alert("Paid fee cannot exceed total fee"); return; }
+const pending = total - paid;
+feeRecords.push({student,total,paid,pending});
+localStorage.setItem('feeRecords',JSON.stringify(feeRecords));
+displayFees(); updateReports();
+document.getElementById('feeForm').reset();
+}
+
+function displayFees(){
+const tbody = document.getElementById('feeList'); tbody.innerHTML='';
+feeRecords.forEach(f=>{
+const tr = document.createElement('tr');
+tr.innerHTML = `<td>${f.student}</td><td>${f.total}</td><td>${f.paid}</td><td>${f.pending}</td>`;
+tbody.appendChild(tr);
+});
+}
+
+function updateReports(){
+document.getElementById('totalStudents').textContent = feeRecords.length;
+let collected=0, pending=0;
+feeRecords.forEach(f=>{ collected+=f.paid; pending+=f.pending; });
+document.getElementById('totalCollected').textContent = collected;
+document.getElementById('totalPending').textContent = pending;
+}
+
+displayFees(); updateReports();
+
+function logout(){ window.location.href="index.html"; }
+</script>
+
+</body>
+</html>
