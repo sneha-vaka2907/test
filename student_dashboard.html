@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Dashboard</title>
+<style>
+body { font-family: 'Segoe UI', sans-serif; margin:0; background:#f0f2f5; }
+header { background:#4CAF50; color:white; padding:20px; text-align:center; position:relative; font-size:20px; font-weight:bold; }
+.logout { position:absolute; right:20px; top:20px; background:#f44336; color:white; border:none; padding:10px 15px; border-radius:8px; cursor:pointer; transition:0.3s; }
+.logout:hover { background:#d32f2f; }
+.container { padding:20px; max-width:900px; margin:auto; }
+.card { background:white; margin:20px 0; border-radius:12px; box-shadow:0 5px 15px rgba(0,0,0,0.1); overflow:hidden; cursor:pointer; transition:0.3s; }
+.card:hover { transform: translateY(-5px); }
+.card h3 { margin:0; padding:20px; background:#f2f2f2; font-size:18px; }
+.card .content { padding:20px; display:none; animation: fadeIn 0.3s; }
+@keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+table { width:100%; border-collapse:collapse; margin-top:10px; }
+table, th, td { border:1px solid #ccc; }
+th, td { padding:10px; text-align:left; }
+</style>
+</head>
+<body>
+
+<header>
+    Student Dashboard
+    <button class="logout" onclick="logout()">Logout</button>
+</header>
+
+<div class="container">
+    <!-- Profile Card -->
+    <div class="card" onclick="toggleCard(this)">
+        <h3>Profile Information</h3>
+        <div class="content">
+            <p><strong>Name:</strong> <span id="profileName"></span></p>
+            <p><strong>Roll Number:</strong> <span id="profileRoll"></span></p>
+            <p><strong>Class:</strong> <span id="profileClass"></span></p>
+        </div>
+    </div>
+
+    <!-- Fee Details Card -->
+    <div class="card" onclick="toggleCard(this)">
+        <h3>Fee Details</h3>
+        <div class="content">
+            <table id="studentFeeTable">
+                <thead>
+                    <tr><th>Total Fee</th><th>Paid</th><th>Pending</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleCard(card){
+    const content = card.querySelector('.content');
+    content.style.display = content.style.display==="block"?"none":"block";
+}
+
+const currentStudent = JSON.parse(localStorage.getItem('currentStudent'));
+if(!currentStudent){ alert("Please login first"); window.location.href="index.html"; }
+document.getElementById('profileName').textContent = currentStudent.name;
+document.getElementById('profileRoll').textContent = currentStudent.roll;
+document.getElementById('profileClass').textContent = currentStudent.class;
+
+function loadStudentFees(){
+    const feeRecords = JSON.parse(localStorage.getItem('feeRecords')||'[]');
+    const studentFees = feeRecords.filter(f => f.student === currentStudent.name);
+    const tbody = document.querySelector('#studentFeeTable tbody');
+    tbody.innerHTML='';
+    studentFees.forEach(f=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${f.total}</td><td>${f.paid}</td><td>${f.pending}</td>`;
+        tbody.appendChild(tr);
+    });
+}
+
+window.onload = function(){ loadStudentFees(); }
+
+function logout(){
+    localStorage.removeItem('currentStudent');
+    window.location.href="index.html";
+}
+</script>
+
+</body>
+</html>
