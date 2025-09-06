@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fee Management Login</title>
+<style>
+* { box-sizing:border-box; }
+body { font-family: 'Segoe UI', sans-serif; margin:0; display:flex; justify-content:center; align-items:center; height:100vh; background: linear-gradient(135deg,#4CAF50,#81C784); }
+.container { background:white; padding:40px; border-radius:15px; box-shadow:0 10px 25px rgba(0,0,0,0.2); width:350px; text-align:center; }
+h2 { margin-bottom:30px; color:#333; }
+input, select, button { width:100%; padding:12px; margin:10px 0; border-radius:8px; border:1px solid #ccc; font-size:16px; }
+input:focus { outline:none; border-color:#4CAF50; box-shadow:0 0 5px #4CAF50; }
+button { background:#4CAF50; color:white; border:none; cursor:pointer; transition:0.3s; }
+button:hover { background:#43A047; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Login</h2>
+    <select id="role">
+        <option value="student">Student</option>
+        <option value="admin">Admin</option>
+    </select>
+
+    <input type="text" id="username" placeholder="Enter username">
+    <input type="password" id="password" placeholder="Enter password">
+
+    <button onclick="login()">Login</button>
+</div>
+
+<script>
+// Sample students
+if(!localStorage.getItem('students')){
+    const students = [
+        { name: "Sneha Vaka", roll: "12345", class: "12-A", username:"sneha" },
+        { name: "Ravi Kumar", roll: "12346", class: "12-B", username:"ravi" }
+    ];
+    localStorage.setItem('students', JSON.stringify(students));
+}
+
+// Login function
+function login(){
+    const role = document.getElementById('role').value;
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+
+    if(!username){ alert("Enter username"); return; }
+
+    if(role==="student"){
+        const students = JSON.parse(localStorage.getItem('students')||'[]');
+        const student = students.find(s=>s.username===username);
+        if(student){
+            localStorage.setItem('currentUser', JSON.stringify({role:"student", data:student}));
+            window.location.href="student_dashboard.html";
+        } else { alert("Invalid username"); }
+    } else if(role==="admin"){
+        const adminUsername = "admin";
+        const adminPassword = "admin123";
+        if(username===adminUsername){
+            if(password===adminPassword){
+                localStorage.setItem('currentUser', JSON.stringify({role:"admin"}));
+                window.location.href="admin_dashboard.html";
+            } else { alert("Incorrect admin password"); }
+        } else { alert("Invalid admin username"); }
+    }
+}
+</script>
+
+</body>
+</html>

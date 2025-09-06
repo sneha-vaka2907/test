@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reports</title>
+<style>
+/* Header + logout button */
+header { 
+    background: linear-gradient(90deg,#6a11cb,#2575fc);
+    color: white;
+    padding: 20px 40px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.logout-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 6px;
+    border: none;
+    background: #ff4b5c;
+    color: white;
+    cursor: pointer;
+    width: auto;
+    transition: 0.3s;
+}
+.logout-btn:hover { background: #e04352; }
+
+/* Container + table */
+.container { max-width:800px; margin:40px auto; background:#fff; padding:30px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); }
+table { width:100%; border-collapse:collapse; margin-top:10px; }
+table th, table td { padding:12px; border-bottom:1px solid #ccc; text-align:left; }
+table th { background-color:#f2f2f2; font-weight:600; }
+</style>
+</head>
+<body>
+
+<header>
+    Reports
+    <button class="logout-btn" onclick="logout()">Logout</button>
+</header>
+
+<div class="container">
+<h2>Fee Collection Summary</h2>
+<table id="reportTable">
+<thead>
+<tr>
+<th>Student</th><th>Total Fees</th><th>Paid</th><th>Pending</th></tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<script>
+// Logout function
+function logout(){
+    localStorage.removeItem('role');
+    window.location.href = "index.html";
+}
+
+// Admin-only check
+if(localStorage.getItem('role') !== 'admin'){
+    alert("Access denied! Admins only.");
+    window.location.href = "index.html";
+}
+
+// Sample report data
+let reportData = [
+    {student:'John Doe', total:5000, paid:5000, pending:0},
+    {student:'Jane Smith', total:4500, paid:2000, pending:2500},
+    {student:'Alice', total:6000, paid:6000, pending:0}
+];
+
+const reportTable = document.getElementById('reportTable').getElementsByTagName('tbody')[0];
+
+// Render table
+function renderReports() {
+    reportTable.innerHTML = "";
+    reportData.forEach(r=>{
+        const row = reportTable.insertRow();
+        row.innerHTML = `
+            <td>${r.student}</td>
+            <td>${r.total}</td>
+            <td>${r.paid}</td>
+            <td>${r.pending}</td>
+        `;
+    });
+}
+
+renderReports();
+</script>
+</body>
+</html>

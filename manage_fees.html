@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Fees</title>
+<style>
+/* Header + logout button */
+header { 
+    background: linear-gradient(90deg,#6a11cb,#2575fc);
+    color: white;
+    padding: 20px 40px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 600;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.logout-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 4px 8px;
+    font-size: 11px;
+    border-radius: 6px;
+    border: none;
+    background: #ff4b5c;
+    color: white;
+    cursor: pointer;
+    width: auto;
+    transition: 0.3s;
+}
+.logout-btn:hover { background: #e04352; }
+
+/* Container, form, table */
+.container { max-width:1000px; margin:40px auto; background:#fff; padding:30px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); }
+form { display:flex; flex-wrap:wrap; gap:15px; margin-bottom:25px; }
+form input { padding:10px; font-size:14px; border-radius:10px; border:1px solid #ccc; flex:1 1 150px; }
+form button { padding:10px 18px; border:none; border-radius:10px; background:linear-gradient(90deg,#6a11cb,#2575fc); color:white; cursor:pointer; font-size:14px; transition:0.3s; }
+form button:hover { background:linear-gradient(90deg,#2575fc,#6a11cb); }
+
+table { width:100%; border-collapse:collapse; margin-top:10px; }
+table th, table td { padding:12px; border-bottom:1px solid #ccc; text-align:left; }
+table th { background-color:#f2f2f2; font-weight:600; }
+
+.action-btn { padding:4px 8px; font-size:12px; border-radius:6px; border:none; cursor:pointer; margin-right:4px; }
+.edit-btn { background-color:#4caf50; color:white; }
+.delete-btn { background-color:#ff4b5c; color:white; }
+.edit-btn:hover { background-color:#45a049; }
+.delete-btn:hover { background-color:#e04352; }
+</style>
+</head>
+<body>
+
+<header>
+    Manage Fees
+    <button class="logout-btn" onclick="logout()">Logout</button>
+</header>
+
+<div class="container">
+<form id="feeForm">
+<input type="text" placeholder="Student Name" id="feeStudent" required>
+<input type="number" placeholder="Amount" id="feeAmount" required>
+<input type="text" placeholder="Status (Paid/Pending)" id="feeStatus" required>
+<button type="submit">Add Fee</button>
+</form>
+
+<table id="feeTable">
+<thead>
+<tr>
+<th>Student</th><th>Amount</th><th>Status</th><th>Actions</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<script>
+// Logout function
+function logout(){
+    localStorage.removeItem('role');
+    window.location.href = "index.html";
+}
+
+// Admin-only access
+if(localStorage.getItem('role') !== 'admin'){
+    alert("Access denied! Admins only.");
+    window.location.href = "index.html";
+}
+
+// Fee data array (frontend-only)
+let feesData = [
+    {student:'John Doe', amount:5000, status:'Paid'},
+    {student:'Jane Smith', amount:4500, status:'Pending'}
+];
+
+const feeTable = document.getElementById('feeTable').getElementsByTagName('tbody')[0];
+const feeForm = document.getElementById('feeForm');
+
+// Render table
+function renderFees() {
+    feeTable.innerHTML = "";
+    feesData.forEach((f,index)=>{
+        const row = feeTable.insertRow();
+        row.innerHTML = `
+            <td>${f.student}</td>
+            <td>${f.amount}</td>
+            <td>${f.status}</td>
+            <td>
+                <button class="action-btn edit-btn" data-index="${index}">Edit</button>
+                <button class="action-btn delete-btn" data-index="${index}">Delete</button>
+            </td>
+        `;
+    });
+}
+
+// Add new fee
+feeForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    const student = document.getElementById('feeStudent').value;
+    const amount = document.getElementById('feeAmount').value;
+    const status = document.getElementById('feeStatus').value;
+    feesData.push({student, amount, status});
+    renderFees();
+    feeForm.reset();
+});
+
+// Edit/Delete functionality
+feeTable.addEventListener('click', function(e){
+    const index = e.target.getAttribute('data-index');
+    if(e.target.classList.contains('delete-btn')){
+        feesData.splice(index,1);
+        renderFees();
+    }
+    if(e.target.classList.contains('edit-btn')){
+        const f = feesData[index];
+        const newStudent = prompt("Enter Student Name", f.student);
+        const newAmount = prompt("Enter Amount", f.amount);
+        const newStatus = prompt("Enter Status", f.status);
+        if(newStudent) f.student = newStudent;
+        if(newAmount) f.amount = newAmount;
+        if(newStatus) f.status = newStatus;
+        renderFees();
+    }
+});
+
+// Initial render
+renderFees();
+</script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Students</title>
+<link rel="stylesheet" href="style.css">
+<style>
+/* Header + Logout button */
+header { 
+    background:linear-gradient(90deg,#6a11cb,#2575fc); 
+    color:white; 
+    padding:20px 40px; 
+    text-align:center; 
+    font-size:24px; 
+    font-weight:600; 
+    position:relative; 
+    box-shadow:0 4px 10px rgba(0,0,0,0.1); 
+}
+.logout-btn { 
+    position:absolute; 
+    top:12px; 
+    right:12px; 
+    padding:4px 8px; 
+    font-size:11px; 
+    border-radius:6px; 
+    border:none; 
+    background:#ff4b5c; 
+    color:white; 
+    cursor:pointer; 
+    width:auto; 
+    transition:0.3s; 
+}
+.logout-btn:hover { 
+    background:#e04352; 
+}
+
+/* Container + form + table */
+.container { max-width:1000px; margin:40px auto; background:#fff; padding:30px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); }
+form { display:flex; flex-wrap:wrap; gap:15px; margin-bottom:25px; }
+form input { padding:10px; font-size:14px; border-radius:10px; border:1px solid #ccc; flex:1 1 150px; }
+form button { padding:10px 18px; border:none; border-radius:10px; background:linear-gradient(90deg,#6a11cb,#2575fc); color:white; cursor:pointer; font-size:14px; transition:0.3s; }
+form button:hover { background:linear-gradient(90deg,#2575fc,#6a11cb); }
+
+table { width:100%; border-collapse:collapse; margin-top:10px; }
+table th, table td { padding:12px; border-bottom:1px solid #ccc; text-align:left; }
+table th { background-color:#f2f2f2; font-weight:600; }
+
+.action-btn { padding:4px 8px; font-size:12px; border-radius:6px; border:none; cursor:pointer; margin-right:4px; }
+.edit-btn { background-color:#4caf50; color:white; }
+.delete-btn { background-color:#ff4b5c; color:white; }
+.edit-btn:hover { background-color:#45a049; }
+.delete-btn:hover { background-color:#e04352; }
+</style>
+</head>
+<body>
+
+<header>
+    Manage Students
+    <button class="logout-btn" onclick="logout()">Logout</button>
+</header>
+
+<div class="container">
+<form id="studentForm">
+<input type="text" placeholder="Student Name" id="studentName" required>
+<input type="text" placeholder="Class" id="studentClass" required>
+<input type="number" placeholder="Roll No" id="studentRoll" required>
+<button type="submit">Add Student</button>
+</form>
+
+<table id="studentTable">
+<thead>
+<tr>
+<th>Name</th><th>Class</th><th>Roll No</th><th>Actions</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<script src="script.js"></script>
+<script>
+// Admin-only access check
+if(localStorage.getItem('role') !== 'admin'){
+    alert("Access denied! Admins only.");
+    window.location.href = "index.html";
+}
+
+// Sample frontend student data
+let studentsData = [
+    {name:'John Doe', cls:'10', roll:'1'},
+    {name:'Jane Smith', cls:'9', roll:'2'}
+];
+
+const studentTable = document.getElementById('studentTable').getElementsByTagName('tbody')[0];
+const studentForm = document.getElementById('studentForm');
+
+// Render student table
+function renderStudents() {
+    studentTable.innerHTML = "";
+    studentsData.forEach((s,index)=>{
+        const row = studentTable.insertRow();
+        row.innerHTML = `
+            <td>${s.name}</td>
+            <td>${s.cls}</td>
+            <td>${s.roll}</td>
+            <td>
+                <button class="action-btn edit-btn" data-index="${index}">Edit</button>
+                <button class="action-btn delete-btn" data-index="${index}">Delete</button>
+            </td>
+        `;
+    });
+}
+
+// Add student
+studentForm.addEventListener('submit', function(e){
+    e.preventDefault();
+    const name = document.getElementById('studentName').value;
+    const cls = document.getElementById('studentClass').value;
+    const roll = document.getElementById('studentRoll').value;
+    studentsData.push({name, cls, roll});
+    renderStudents();
+    studentForm.reset();
+});
+
+// Edit/Delete buttons
+studentTable.addEventListener('click', function(e){
+    const index = e.target.getAttribute('data-index');
+    if(e.target.classList.contains('delete-btn')){
+        studentsData.splice(index,1);
+        renderStudents();
+    }
+    if(e.target.classList.contains('edit-btn')){
+        const s = studentsData[index];
+        const newName = prompt("Enter Name", s.name);
+        const newClass = prompt("Enter Class", s.cls);
+        const newRoll = prompt("Enter Roll No", s.roll);
+        if(newName) s.name = newName;
+        if(newClass) s.cls = newClass;
+        if(newRoll) s.roll = newRoll;
+        renderStudents();
+    }
+});
+
+// Initial render
+renderStudents();
+</script>
+</body>
+</html>
